@@ -18,9 +18,9 @@ class CarController extends Controller
             //trae autos de bd
             $cars = Car::all();
 
-            return $this->response(true, 'Cars retrieved successfully', $cars);
+            return $this->response(true, 'Lista de autos extraída correctamente', $cars);
         } catch (\Exception $e) {
-            return $this->response(false, 'Error retrieving cars: ' . $e->getMessage(), null, 500);
+            return $this->response(false, 'Error al consultar autos: ' . $e->getMessage(), null, 500);
         }
 
     }
@@ -44,18 +44,18 @@ class CarController extends Controller
 
         // si tengo un error de validación, retorna un error 422
         if ($validator->fails()) {
-            return $this->response(false, 'Validation error', $validator->errors(), 422);
+            return $this->response(false, 'Error de validación ', $validator->errors(), 422);
         }
         // Crea el auto en base a los parámetros que devuelve la validación
-        $car = Car::create($validator->validated());
+        $car = $validator->validated();
 
         try {
             // Crear un nuevo auto
             $newCar = Car::create($car);
 
-            return $this->response(true, 'Car created successfully', $newCar, 201);
+            return $this->response(true, 'Auto creado ', $newCar, 201);
         } catch (\Exception $e) {
-            return $this->response(false, 'Error creating car: ' . $e->getMessage(), null, 500);
+            return $this->response(false, 'Error al crear auto: ' . $e->getMessage(), null, 500);
         }
 
     }
@@ -65,6 +65,7 @@ class CarController extends Controller
      */
     public function show(Car $car)
     {
+        //dd($car);
         //laravel ya sabe que el parámetro $car es un objeto de tipo Car, gracias a la inyección de dependencias,
         //por lo que no es necesario buscarlo en la base de datos manualmente, lo busca automáticamente
         try {
@@ -95,31 +96,34 @@ class CarController extends Controller
 
         // si tengo un error de validación, retorna un error 422
         if ($validator->fails()) {
-            return $this->response(false, 'Validation error', $validator->errors(), 422);
+            return $this->response(false, 'Error de validación ', $validator->errors(), 422);
         }
 
         try {
             // Actualizar el auto con los datos validados
             $car->update($validator->validated());
 
-            return $this->response(true, 'Car updated successfully', $car);
+            return $this->response(true, 'Auto Actualizado', $car);
         } catch (\Exception $e) {
-            return $this->response(false, 'Error updating car: ' . $e->getMessage(), null, 500);
+            return $this->response(false, 'Error al actualizar auto: ' . $e->getMessage(), null, 500);
         }
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Car $car)
-    {
-        try {
-            // Eliminar el auto
-            $car->delete();
-
-            return $this->response(true, 'Car deleted successfully');
-        } catch (\Exception $e) {
-            return $this->response(false, 'Error deleting car: ' . $e->getMessage(), null, 500);
-        }
+public function destroy(?Car $auto)
+{
+    //dd($id);
+    if (!$auto) {
+        return $this->response(false, 'Auto no encontrado', null, 404);
     }
+
+    try {
+        $auto->delete();
+        return $this->response(true, 'Auto eliminado', null, 200);
+    } catch (\Exception $e) {
+        return $this->response(false, 'Error al borrar auto: ' . $e->getMessage(), null, 500);
+    }
+}
 }
